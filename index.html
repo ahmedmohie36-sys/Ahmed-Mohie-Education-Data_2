@@ -1,12 +1,14 @@
 <!-- الصف الثاني الثانوي -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form with Unique Code</title>
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
       <link rel="icon" href="images/27aaa2af-994c-4d8a-8221-c5a3674cbb9b-removebg-preview_logo.png" type="image/png">
 
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
       body {
           margin: 0;
@@ -263,19 +265,19 @@
     transform: translateX(-350px);
   }
 }
-        
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container disable-on-submit">
         <form id="contact-form" onsubmit="return false;">
             <div class="main">
                 <div class="signup">
                     <label for="chk" aria-hidden="true" style="font-size: large;">تسجيل الدخول</label>
                     <label for="chk" aria-hidden="true" style="font-size: large;">الصف الثاني الثانوي</label>
                     <input type="text" name="الاسم" placeholder="اسم الطالب رباعي" required>
+                    <input type="email" name="email" placeholder="البريد الإلكتروني" required>
                     <input type="text" name="رقم الطالب" placeholder="رقم هاتف الطالب" required>
-                    <input type="text" name="رقم ولي الامر" placeholder="رقم هاتف ولي الامر" required>
+                    <input type="text" name="رقم ولي الامر" placeholder="رقم ولي هاتف الامر" required>
                     <input type="password" name="password" placeholder="كلمة المرور" required>
                     <input type="password" name="confirm_password" placeholder="تأكيد كلمة المرور" required>
                     <br>
@@ -290,17 +292,35 @@
                         <option value="الامل السابع">الامل السابع</option>
                         <option value="الربوة">الربوة</option>
                         <option value="اشراقه (ابني بيتك السابعة)">اشراقه (ابني بيتك السابعة) </option>
-                        <option value="اشراقة ال (800 فدان)">اشراقة (ال 800 فدان)</option>
+                        <option value="اشراقة ال (8000 فدان)">اشراقة (ال 800 فدان)</option>
                         <option value="اشراقه (ابني بيتك المنطقة 12)">اشراقه (ابني بيتك المنطقة 12)</option>
                         <option value="تيتشر (مول يوتوبيا)">تيتشر (مول يوتوبيا)</option>
-                        <option value="تيتشر (مول يوتوبيا)">تيتشر (حدائق الاهرام)</option>
                         <option value="القمة (المنطقة 247 مول الحمد)">القمة (المنطقة 247 مول الحمد)</option>
                         <option value="انس (كومباوند المخابرات)">انس (كومباوند المخابرات)</option>
                         <option value="الشمس">الشمس</option>
                     </select>
-                    <input type="hidden" name="الكود" id="unique_code">
-                    <br><br><br>
-                    <button type="submit" id="submit">تسجيل</button>
+                    <label style="font-size: 1em; color: #4a4a4a; margin-top: 15px;">الباركود:</label>
+<input type="text" name="الكود" id="unique_code" readonly placeholder="سيظهر هنا رقم الباركود بعد المسح">
+<div id="barcode-scanner-wrapper" style="margin-top: 10px;">
+  <div id="reader" style="display: none; width: 100%; height: auto; position: relative;">
+    <div style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 80%;
+        height: 60px;
+        transform: translate(-50%, -50%);
+        border: 2px dashed white;
+        border-radius: 10px;
+        z-index: 10;"></div>
+  </div>
+</div>
+
+<!-- Buttons OUTSIDE the hidden reader area -->
+<button type="button" onclick="startScanner()">📷 مسح الباركود</button>
+<br><br>
+<button type="submit" id="submit">تسجيل</button>
+
                 </div>
                 <div class="overlay" id="overlay"></div>
                 <div id="loadingOverlay" style="display: none;">
@@ -334,7 +354,8 @@
                       </svg>
                     </div>
                   </div>
-                </div>                <div class="modal" id="successModal" style="display: none;">
+                </div>               
+                <div class="modal" id="successModal" style="display: none;">
                     <p id="successMessage"></p>
                     <button onclick="closeModal()">اغلاق</button>
                 </div>
@@ -343,18 +364,18 @@
     </div>
     
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycby02xzCzeceA5gXlJnowaFuRT4OSeFz4H8qnDcrRtBwoHwvO1xgiLdUXy6xlqJVrHFl3g/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxIQLOozUChnNs9Q4OS7AHrFiPG4Dk1xJ83XaeeTTHbfJYdUazodn0Pr6lcUOfY_pWdTw/exec';
         const form = document.getElementById('contact-form');
         const loadingBox = document.getElementById('loadingBox');
 
-        function generateUniqueCode() {
-            const chars = '123456789';
-            let code = '';
-            for (let i = 0; i < 5; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
+        // function generateUniqueCode() {
+        //     const chars = '123456789';
+        //     let code = '';
+        //     for (let i = 0; i < 5; i++) {
+        //         code += chars.charAt(Math.floor(Math.random() * chars.length));
+        //     }
+        //     return code;
+        // }
 
         function displayLoadingBox() {
             document.getElementById('loadingOverlay').style.display = 'block';
@@ -371,9 +392,10 @@
         //     alert("حفظ الكود مهمتك الشخصيه كودك هو: " + uniqueCode );
         //     alert("برجاء عدم عمل هذه العملية مرة اخري" );
         //     if (confirm("Click OK to visit the primary secondary page.")) {
-        //         window.location.href = 'https://yamenxy.github.io/new_goto_2/';
+        //         window.location.href = 'https://yamenxy.github.io/new_goto/';
         //     }
         // }
+
          function displaySuccessMessage(code) {
             hideLoadingBox();
             successMessage.textContent = `كودك هو: ${code}`;
@@ -382,12 +404,12 @@
         }
 
         function closeModal() {
-            window.location.href = 'https://ahmedmohie36-sys.github.io/Ahmed-Mohie-Education-Second/';
+            window.location.href = 'https://yamenxy.github.io/new_goto/';
             successModal.style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
             form.reset();
         }
-
+        
         function isStrongPassword(password) {
             const minLength = 5;
             if (password.length < minLength) {
@@ -416,6 +438,11 @@
             return true;
         }
 
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+            }
+
                form.addEventListener('submit', e => {
     e.preventDefault();
     let isValid = true;
@@ -425,6 +452,7 @@
     const guardianNumber = form.elements['رقم ولي الامر'].value.trim();
     const password = form.elements['password'].value.trim();
     const confirmPassword = form.elements['confirm_password'].value.trim();
+    const email = form.elements['email'].value.trim();
 
     if (!isValidArabic(name)) {
         isValid = false;
@@ -470,10 +498,20 @@
         isValid = false;
     }
 
+    if (!isValidEmail(email)) {
+        isValid = false;
+        alert("الرجاء إدخال بريد إلكتروني صحيح!");
+    }   
+
     if (isValid) {
         displayLoadingBox();
-        const uniqueCode = generateUniqueCode();
-        document.getElementById('unique_code').value = uniqueCode;
+        const uniqueCode = document.getElementById('unique_code').value;
+if (!uniqueCode) {
+    alert("لم يتم مسح الباركود بعد! برجاء مسحه أولاً.");
+    hideLoadingBox();
+    return;
+}
+
 
         // Prepend a single quote to the numbers
         const modifiedStudentNumber = "+2" + studentNumber;
@@ -487,13 +525,14 @@
         fetch(scriptURL, { method: 'POST', body: formData })
             .then(response => response.json())
             .then(response => {
-                hideLoadingBox();
-                if (response.result === 'success') {
-                    displaySuccessMessage(uniqueCode);
-                } else if (response.result === 'error') {
-                    alert(response.message);
-                }
-            })
+    hideLoadingBox();
+    if (response.result === 'success') {
+        displaySuccessMessage(uniqueCode); // This should use the scanned one
+    } else if (response.result === 'error') {
+        alert(response.message);
+    }
+})
+
             .catch(error => {
                 console.error('Error!', error.message);
                 hideLoadingBox();
@@ -512,6 +551,46 @@
             return arabicRegex.test(text);
         }
     </script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+    let scannerInstance;
+
+    function startScanner() {
+        document.getElementById("reader").style.display = "block";
+        const reader = new Html5Qrcode("reader");
+
+        reader.start(
+  { facingMode: "environment" },
+  {
+    fps: 10,
+    qrbox: { width: 300, height: 150 },
+    aspectRatio: 1.5,
+    disableFlip: false
+  },
+  
+            (decodedText, decodedResult) => {
+                console.log(`Code scanned: ${decodedText}`);
+                document.getElementById("unique_code").value = decodedText;
+                reader.stop().then(() => {
+                    console.log("Scanner stopped");
+                    document.getElementById("reader").style.display = "none";
+                }).catch(err => {
+                    console.error("Failed to stop scanner", err);
+                });
+            },
+            (errorMessage) => {
+                // optional error logging
+            }
+        ).catch(err => {
+            console.error("Error starting scanner", err);
+            alert("تعذر فتح الكاميرا. تحقق من الأذونات.");
+        });
+
+        scannerInstance = reader;
+    }
+</script>
+
+
+
 </body>
 </html>
-
